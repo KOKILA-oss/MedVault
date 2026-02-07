@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Signup.css';
+import axios from "axios";
+
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -19,13 +21,34 @@ const Signup = () => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Dummy signup - no validation
-    if (formData.username && formData.email && formData.password) {
-      navigate('/otp-verify');
-    }
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (formData.password !== formData.confirmPassword) {
+    alert("Passwords do not match");
+    return;
+  }
+
+  try {
+    await axios.post("/api/auth/register/request-otp", {
+      email: formData.email
+    });
+
+    // Navigate to OTP page and pass entire form data
+    navigate('/otp-verify', {
+  state: {
+    type: "register",
+    userData: formData
+  }
+});
+
+
+  } catch (error) {
+    console.error("OTP request failed:", error);
+  }
+};
+
+
 
   return (
     <div className="signup-container">

@@ -1,12 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Otp.css';
+import axios from "axios";
+import { useLocation } from 'react-router-dom';
 
 const Otp = () => {
   const navigate = useNavigate();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef([]);
   const [isVerifying, setIsVerifying] = useState(false);
+  const location = useLocation();
+  const { type, userData } = location.state || {};
+
+  useEffect(() => {
+  if (!type || !userData) {
+    navigate('/login');
+  }
+}, [type, userData, navigate]);
+
+
 
   useEffect(() => {
     // Auto-focus first input
@@ -54,19 +66,61 @@ const Otp = () => {
     inputRefs.current[lastIndex]?.focus();
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const otpValue = otp.join('');
-    
-    if (otpValue.length === 6) {
-      setIsVerifying(true);
-      
-      // Simulate verification with animation
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1500);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  const otpValue = otp.join('');
+
+  if (otpValue.length !== 6) {
+    alert("Please enter complete 6-digit OTP");
+    return;
+  }
+
+  setIsVerifying(true);
+
+   try {
+  let response;
+
+  if (type === "register") {
+    response = await axios.post("/api/auth/register/verify-otp", {
+      name: userData.username,
+      email: userData.email,
+      password: userData.password,
+      role: userData.role.toUpperCase(),
+      otp: otpValue
+    });
+
+    if (response.data === "Registration successful") {
+      alert("Registration successful!");
+      navigate("/login");
+    } else {
+      alert(response.data);
     }
-  };
+
+  } else if (type === "login") {
+    response = await axios.post("/api/auth/login/verify-otp", {
+      email: userData.email,
+      otp: otpValue
+    });
+
+    if (response.data.startsWith("ey")) {
+      localStorage.setItem("token", response.data);
+      navigate("/dashboard");
+    } else {
+      alert(response.data);
+    }
+  }
+
+} catch (error) {
+  console.error("OTP verification failed:", error.response?.data || error.message);
+  alert(error.response?.data || "Invalid OTP");
+
+  // 🔥 Clear OTP fields
+  setOtp(['', '', '', '', '', '']);
+  inputRefs.current[0]?.focus();
+}
+
+ }
+
 
   const handleResend = () => {
     setOtp(['', '', '', '', '', '']);

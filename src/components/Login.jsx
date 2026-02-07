@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
+import axios from "axios";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -16,13 +17,33 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Dummy login - no validation
-    if (formData.username && formData.password) {
-      navigate('/otp-verify');
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await axios.post("/api/auth/login/request-otp", {
+      email: formData.username,
+      password: formData.password
+    });
+
+    console.log(response.data);
+
+    // If login success
+   navigate('/otp-verify', {
+  state: {
+    type: "login",
+    userData: {
+      email: formData.username
     }
-  };
+  }
+});
+
+
+  } catch (error) {
+    console.error("Login failed:", error);
+  }
+};
+
 
   return (
     <div className="login-container">
