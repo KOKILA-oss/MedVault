@@ -90,6 +90,9 @@ const Otp = () => {
     });
 
     if (response.data === "Registration successful") {
+      if (userData?.role) {
+        localStorage.setItem("role", String(userData.role).toLowerCase());
+      }
       alert("Registration successful!");
       navigate("/login");
     } else {
@@ -105,6 +108,22 @@ const Otp = () => {
     if (response.data.startsWith("ey")) {
       localStorage.setItem("token", response.data);
       navigate("/dashboard");
+    } else {
+      alert(response.data);
+    }
+  } else if (type === "reset") {
+    response = await axios.post("/api/auth/forgot/verify-otp", {
+      email: userData.email,
+      otp: otpValue
+    });
+
+    if (response.data === "OTP verified") {
+      localStorage.setItem("resetEmail", userData.email);
+      navigate("/set-password", {
+        state: {
+          email: userData.email
+        }
+      });
     } else {
       alert(response.data);
     }
