@@ -4,25 +4,31 @@ import './DoctorDashboard.css';
 
 const DoctorDashboard = () => {
   const navigate = useNavigate();
-  const [theme, setTheme] = useState('light');
-  const [userName] = useState('Dr. Asha Sharma');
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+const [userName] = useState(() => {
+  const stored = localStorage.getItem("medvaultProfile");
+  const parsed = stored ? JSON.parse(stored) : null;
+  return parsed?.username || '';
+});
+
+
+
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    setTheme(savedTheme);
-    document.documentElement.dataset.theme = savedTheme;
-  }, []);
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
-    document.documentElement.dataset.theme = newTheme;
   };
 
   const handleLogout = () => {
-    navigate('/login');
-  };
+  localStorage.clear();
+  navigate('/login');
+};
+
 
   const handleProfileClick = () => {
     navigate('/doctor-profile');

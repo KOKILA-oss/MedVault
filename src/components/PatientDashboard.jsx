@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PatientDashboard.css';
 
 const PatientDashboard = () => {
   const navigate = useNavigate();
-  const [theme, setTheme] = useState('light');
-  const [userName] = useState('Rahul Agrawal'); // Dummy name
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+  const [userName] = useState(() => {
+  const stored = localStorage.getItem("medvaultProfile");
+  const parsed = stored ? JSON.parse(stored) : null;
+  return parsed?.username || '';
+});
 
-  useEffect(() => {
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    setTheme(savedTheme);
-    document.documentElement.setAttribute('data-theme', savedTheme);
-  }, []);
+
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -21,9 +20,11 @@ const PatientDashboard = () => {
     document.documentElement.setAttribute('data-theme', newTheme);
   };
 
-  const handleLogout = () => {
-    navigate('/login');
-  };
+ const handleLogout = () => {
+  localStorage.clear();
+  navigate('/login');
+};
+  
 
   const handleProfileClick = () => {
     navigate('/patient-profile');
