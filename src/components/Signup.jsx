@@ -176,13 +176,27 @@ if (response.data === "OTP sent to email") {
                 <div className="role-icon">⚕️</div>
                 <span className="role-name">Doctor</span>
               </label>
+
+              <label className={`role-card ${formData.role === 'admin' ? 'active' : ''}`}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="admin"
+                  checked={formData.role === 'admin'}
+                  onChange={handleChange}
+                />
+                <div className="role-icon">🛡️</div>
+                <span className="role-name">Admin</span>
+              </label>
             </div>
           </div>
 
           {step === 1 && (
             <>
               <div className="form-group">
-                <label htmlFor="username">Username</label>
+                <label htmlFor="username">
+                  {formData.role === 'admin' ? 'Admin Root Username' : 'Username'}
+                </label>
                 <div className="input-wrapper">
                   <span className="input-icon">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -196,7 +210,7 @@ if (response.data === "OTP sent to email") {
                     name="username"
                     value={formData.username}
                     onChange={handleChange}
-                    placeholder="Choose a username"
+                    placeholder={formData.role === 'admin' ? 'Enter admin root username' : 'Choose a username'}
                     required
                   />
                 </div>
@@ -271,20 +285,22 @@ if (response.data === "OTP sent to email") {
 
           {step === 2 && (
             <div className="details-grid">
-              <div className="form-group">
-                <label htmlFor="phoneNumber">Phone Number 📞</label>
-                <div className="input-wrapper plain">
-                  <input
-                    type="tel"
-                    id="phoneNumber"
-                    name="phoneNumber"
-                    value={formData.phoneNumber}
-                    onChange={handleChange}
-                    placeholder="Enter phone number"
-                    required
-                  />
+              {formData.role !== 'admin' && (
+                <div className="form-group">
+                  <label htmlFor="phoneNumber">Phone Number 📞</label>
+                  <div className="input-wrapper plain">
+                    <input
+                      type="tel"
+                      id="phoneNumber"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
+                      onChange={handleChange}
+                      placeholder="Enter phone number"
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               {formData.role === 'patient' ? (
                 <>
@@ -423,7 +439,7 @@ if (response.data === "OTP sent to email") {
                     </div>
                   </div>
                 </>
-              ) : (
+              ) : formData.role === 'doctor' ? (
                 <>
                   <div className="form-group">
                     <label htmlFor="specialization">Specialization 🩺</label>
@@ -530,6 +546,23 @@ if (response.data === "OTP sent to email") {
                         value={formData.hospitalAddress}
                         onChange={handleChange}
                         placeholder="Street, City, State"
+                        required
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="form-group full-width">
+                    <label htmlFor="hospitalName">Hospital Name 🏥</label>
+                    <div className="input-wrapper plain">
+                      <input
+                        type="text"
+                        id="hospitalName"
+                        name="hospitalName"
+                        value={formData.hospitalName}
+                        onChange={handleChange}
+                        placeholder="Enter hospital name"
                         required
                       />
                     </div>
